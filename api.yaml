@@ -131,11 +131,11 @@ paths:
                       description: Флаг активности баннера
                     created_at:
                       type: string
-                      format: date-time
+                      format: date-customTime
                       description: Дата создания баннера
                     updated_at:
                       type: string
-                      format: date-time
+                      format: date-customTime
                       description: Дата обновления баннера
         '401':
           description: Пользователь не авторизован

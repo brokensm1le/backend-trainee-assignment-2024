@@ -19,15 +19,15 @@ func InitPsqlDB(c *config.Config) (*sqlx.DB, error) {
 func CreateTable(db *sqlx.DB) error {
 	var (
 		query = `
-		CREATE TABLE IF NOT EXISTS "user"
+		CREATE TABLE IF NOT EXISTS "banner"
 		(
-			id         serial       not null unique,
-			username   varchar(100) not null unique,
-			password   varchar(100) not null,
-			first_name varchar(100) not null,
-			last_name  varchar(100) not null,
-			email      varchar(100),
-			phone      varchar(100)
+			banner_id       bigserial    not null unique,
+			feature_id   	bigint       not null,
+			tag_ids   		bigint[]	 not null,
+			content 		text		 not null,
+			is_active  		boolean 	 not null default true,
+			created_at      timestamp	 not null,
+			updated_at      timestamp	 not null
 		);`
 	)
 	if _, err := db.Exec(query); err != nil {

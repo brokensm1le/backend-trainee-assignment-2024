@@ -17,6 +17,21 @@ func NewBannerHandler(bannerUC banner.Usecase) *BannerHandler {
 
 func (h *BannerHandler) GetBanner() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		var (
+			params banner.GetBannerParams
+		)
+
+		if err := c.QueryParser(&params); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
+
+		content, err := h.bannerUC.GetBanner(&params)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
+		if _, err = c.Status(fiber.StatusOK).Response().BodyWriter().Write([]byte(*content)); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
 		return nil
 	}
 }
@@ -29,7 +44,19 @@ func (h *BannerHandler) GetFilteredBanners() fiber.Handler {
 
 func (h *BannerHandler) CreateBanner() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return nil
+		var (
+			params banner.CreateBannerParams
+		)
+
+		if err := c.BodyParser(&params); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "error": "Bad request"})
+		}
+
+		bannerId, err := h.bannerUC.CreateBanner(&params)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"banner_id": bannerId})
 	}
 }
 
