@@ -28,7 +28,18 @@ func CreateTable(db *sqlx.DB) error {
 			is_active  		boolean 	 not null default true,
 			created_at      timestamp	 not null,
 			updated_at      timestamp	 not null
-		);`
+		);
+		CREATE TABLE IF NOT EXISTS "auth"
+		(
+			id		  	    	bigserial    not null unique,
+			name				text		 not null,
+			email		   		varchar(255) not null unique,
+			password   			text		 not null,
+			role      			smallint	 not null default 0,
+			refresh_token    	text		 not null unique,
+			refresh_token_ttl   timestamp	 not null
+		);
+		`
 	)
 	if _, err := db.Exec(query); err != nil {
 		return err

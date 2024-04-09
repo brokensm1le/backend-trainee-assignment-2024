@@ -1,10 +1,16 @@
 package httpServer
 
 import (
+	http2 "backend-trainee-assignment-2024/internal/auth/delivery/http"
+	authRepository "backend-trainee-assignment-2024/internal/auth/repository"
+	authUsecase "backend-trainee-assignment-2024/internal/auth/usecase"
 	"backend-trainee-assignment-2024/internal/banner/delivery/http"
-	"backend-trainee-assignment-2024/internal/banner/repository"
-	"backend-trainee-assignment-2024/internal/banner/usecase"
+	bannerRepository "backend-trainee-assignment-2024/internal/banner/repository"
+	bannerUsecase "backend-trainee-assignment-2024/internal/banner/usecase"
+	"backend-trainee-assignment-2024/internal/cconstant"
+	"backend-trainee-assignment-2024/pkg/hasher/SHA256"
 	"backend-trainee-assignment-2024/pkg/storagePostgres"
+	"backend-trainee-assignment-2024/pkg/tokenManager/jwtTokenManager"
 	"github.com/gofiber/fiber/v2"
 	"log"
 )
@@ -20,12 +26,22 @@ func (s *Server) MapHandlers(app *fiber.App) error {
 		log.Fatalf(err.Error())
 	}
 
-	bannerRepo := repository.NewPostgresRepository(db)
+	hasher := SHA256.NewSHA256Hasher(cconstant.Salt)
+	manager, err := jwtTokenManager.NewManger(cconstant.SignedKey)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 
-	bannerUC := usecase.NewBannerUsecase(bannerRepo)
+	authRepo := authRepository.NewPostgresRepository(db)
+	bannerRepo := bannerRepository.NewPostgresRepository(db)
 
-	bannerR := http.NewBannerHandler(bannerUC)
+	authUC := authUsecase.NewAuthUsecase(authRepo, hasher, manager)
+	bannerUC := bannerUsecase.NewBannerUsecase(bannerRepo)
 
+	authR := http2.NewAuthHandler(authUC)
+	bannerR := http.NewBannerHandler(bannerUC, manager)
+
+	http2.MapRoutes(app, authR)
 	http.MapRoutes(app, bannerR)
 
 	return nil
