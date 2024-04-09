@@ -7,6 +7,7 @@ type GetBannerParams struct {
 	TagID           int64  `query:"tag_id" db:"tag_id"`
 	FeatureID       int64  `query:"feature_id" db:"feature_id"`
 	UseLastRevision bool   `query:"use_last_revision"`
+	Role            int    `json:"-"`
 }
 
 type GetFilteredBannersParams struct {
@@ -15,6 +16,7 @@ type GetFilteredBannersParams struct {
 	FeatureID int64  `query:"feature_id" db:"feature_id"`
 	Limit     int64  `query:"limit"`
 	Offset    int64  `query:"offset"`
+	Role      int    `json:"-"`
 }
 
 type GetFilteredBannersResponse struct {

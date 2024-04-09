@@ -31,8 +31,13 @@ func (h *BannerHandler) GetBanner() fiber.Handler {
 		if tokenData == nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "re-login"})
 		}
-
+		data, ok := tokenData.(*tokenManager.Data)
+		fmt.Println(data, ok)
+		if !ok {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "re-login"})
+		}
 		log.Println("tokenData:", tokenData)
+		params.Role = data.Role
 
 		if !validateParamsGetBanner(c) {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad request"})
@@ -67,8 +72,13 @@ func (h *BannerHandler) GetFilteredBanners() fiber.Handler {
 		if tokenData == nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "re-login"})
 		}
-
+		data, ok := tokenData.(*tokenManager.Data)
+		fmt.Println(data, ok)
+		if !ok {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "re-login"})
+		}
 		log.Println("tokenData:", tokenData)
+		params.Role = data.Role
 
 		if err := c.QueryParser(&params); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})

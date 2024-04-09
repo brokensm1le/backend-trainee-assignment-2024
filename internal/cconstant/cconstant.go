@@ -13,3 +13,8 @@ const (
 	AccessTokenTTL  = 2 * time.Hour
 	RefreshTokenTTl = 30 * 24 * time.Hour
 )
+
+const (
+	RoleUser  int = 0
+	RoleAdmin int = 1
+)
