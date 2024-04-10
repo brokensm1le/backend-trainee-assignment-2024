@@ -4,6 +4,7 @@ import (
 	http2 "backend-trainee-assignment-2024/internal/auth/delivery/http"
 	authRepository "backend-trainee-assignment-2024/internal/auth/repository"
 	authUsecase "backend-trainee-assignment-2024/internal/auth/usecase"
+	"backend-trainee-assignment-2024/internal/banner/cache/lazyCache"
 	"backend-trainee-assignment-2024/internal/banner/delivery/http"
 	bannerRepository "backend-trainee-assignment-2024/internal/banner/repository"
 	bannerUsecase "backend-trainee-assignment-2024/internal/banner/usecase"
@@ -13,6 +14,7 @@ import (
 	"backend-trainee-assignment-2024/pkg/tokenManager/jwtTokenManager"
 	"github.com/gofiber/fiber/v2"
 	"log"
+	"time"
 )
 
 func (s *Server) MapHandlers(app *fiber.App) error {
@@ -35,14 +37,27 @@ func (s *Server) MapHandlers(app *fiber.App) error {
 	authRepo := authRepository.NewPostgresRepository(db)
 	bannerRepo := bannerRepository.NewPostgresRepository(db)
 
+	cache := lazyCache.NewCache(bannerRepo)
+
 	authUC := authUsecase.NewAuthUsecase(authRepo, hasher, manager)
-	bannerUC := bannerUsecase.NewBannerUsecase(bannerRepo)
+	bannerUC := bannerUsecase.NewBannerUsecase(bannerRepo, cache)
 
 	authR := http2.NewAuthHandler(authUC)
 	bannerR := http.NewBannerHandler(bannerUC, manager)
 
 	http2.MapRoutes(app, authR)
 	http.MapRoutes(app, bannerR)
+
+	go func() {
+		for {
+			err = cache.LoadCache()
+			if err != nil {
+				log.Println("Error in loadCache:", err.Error())
+			}
+			log.Println("Cached Done!")
+			time.Sleep(5 * time.Minute)
+		}
+	}()
 
 	return nil
 }

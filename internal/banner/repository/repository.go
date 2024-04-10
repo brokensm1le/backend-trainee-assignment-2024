@@ -18,6 +18,25 @@ func NewPostgresRepository(db *sqlx.DB) banner.Repository {
 	return &postgresRepository{db: db}
 }
 
+func (p *postgresRepository) GetAllBanners() (*[]banner.GetFilteredBannersResponse, error) {
+	var (
+		data  []banner.GetFilteredBannersResponse
+		query = `
+		SELECT *
+		FROM %[1]s 
+		WHERE is_active = true;
+		`
+	)
+
+	query = fmt.Sprintf(query, cconstant.BannerDB)
+
+	if err := p.db.Select(&data, query); err != nil {
+		return &data, err
+	}
+
+	return &data, nil
+}
+
 func (p *postgresRepository) GetContentBanner(params *banner.GetBannerParams) (*string, error) {
 	var (
 		data  string
@@ -209,9 +228,6 @@ func (p *postgresRepository) CreateBanner(params *banner.CreateBannerParams) (in
 
 	query = fmt.Sprintf(query, cconstant.BannerDB)
 
-	fmt.Println(query)
-	fmt.Println("VALUES", values)
-
 	tx, err := p.db.Begin()
 	if err != nil {
 		return 0, err
@@ -238,7 +254,7 @@ func (p *postgresRepository) CreateBanner(params *banner.CreateBannerParams) (in
 		tx.Rollback()
 		return 0, err
 	}
-	fmt.Println("cntRow", cntRow)
+
 	if cntRow != 1 {
 		tx.Rollback()
 		return 0, fmt.Errorf("you already have that relationship")
@@ -272,86 +288,6 @@ func (p *postgresRepository) DeleteBanner(id int64) error {
 	return nil
 }
 
-func (p *postgresRepository) UpdateUser2(params *banner.UpdateBannerParams) error {
-	var (
-		query string = `
-		UPDATE %[1]s SET
-		`
-
-		cntParams  int
-		nameParams string
-		values     []any
-	)
-
-	fmt.Println("params:", params)
-	tagIds, ok := params.TagIDs.([]int64)
-	fmt.Println(tagIds, ok)
-	if params.TagIDs != nil {
-		fmt.Println("Check1")
-		nameParams = nameParams + "tag_ids"
-		cntParams++
-		values = append(values, "{"+strings.Trim(strings.Replace(fmt.Sprint(params.TagIDs), " ", ", ", -1), "[]")+"}")
-	}
-	if params.FeatureID != nil {
-		fmt.Println("Check2")
-		if cntParams > 0 {
-			nameParams = nameParams + ", feature_id"
-		}
-		cntParams++
-		values = append(values, int64(params.FeatureID.(float64)))
-	}
-	if params.Content != nil {
-		fmt.Println("Check3")
-		if cntParams > 0 {
-			nameParams = nameParams + ", content"
-		}
-		cntParams++
-		values = append(values, params.Content)
-	}
-	if params.IsActive != nil {
-		fmt.Println("Check4")
-		if cntParams > 0 {
-			nameParams = nameParams + ", is_active"
-		}
-		cntParams++
-		values = append(values, params.IsActive)
-	}
-	if cntParams > 0 {
-		nameParams = nameParams + ", updated_at"
-		cntParams++
-		values = append(values, customTime.GetMoscowTime())
-	}
-	fmt.Println("VALUES:", values)
-	fmt.Println("namePARAMS:", nameParams)
-
-	if cntParams > 1 {
-		query += "(" + nameParams + ") = \n\t\t\t("
-		query += fmt.Sprintf("$%d", 1)
-		for i := 2; i <= cntParams; i++ {
-			query += fmt.Sprintf(",$%d", i)
-		}
-		query += ")\n"
-	} else {
-		query += nameParams + " = \n\t\t\t"
-		query += fmt.Sprintf("$%d", 1) + "\n"
-	}
-
-	values = append(values, params.BannerID)
-	query += fmt.Sprintf("\t\tWHERE banner_id = $%d", len(values))
-	// -----------------------------------------------------------------------------------------------------------------------------
-
-	query = fmt.Sprintf(query, cconstant.BannerDB)
-
-	fmt.Println("QUERY:", query)
-	// -----------------------------------------------------------------------------------------------------------------------------
-
-	if _, err := p.db.Exec(query, values...); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (p *postgresRepository) UpdateUser(params *banner.UpdateBannerParams) error {
 	var (
 		query string = `
@@ -366,14 +302,12 @@ func (p *postgresRepository) UpdateUser(params *banner.UpdateBannerParams) error
 	chngBanner, err := p.getBannerById(params.BannerID)
 
 	if params.TagIDs != nil {
-		fmt.Println("Check1")
 		nameParams = nameParams + "tag_ids"
 		cntParams++
 		chngBanner.TagIDs = "{" + strings.Trim(strings.Replace(fmt.Sprint(params.TagIDs), " ", ", ", -1), "[]") + "}"
 		values = append(values, "{"+strings.Trim(strings.Replace(fmt.Sprint(params.TagIDs), " ", ", ", -1), "[]")+"}")
 	}
 	if params.FeatureID != nil {
-		fmt.Println("Check2")
 		if cntParams > 0 {
 			nameParams = nameParams + ", feature_id"
 		}
@@ -382,7 +316,6 @@ func (p *postgresRepository) UpdateUser(params *banner.UpdateBannerParams) error
 		values = append(values, int64(params.FeatureID.(float64)))
 	}
 	if params.Content != nil {
-		fmt.Println("Check3")
 		if cntParams > 0 {
 			nameParams = nameParams + ", content"
 		}
@@ -390,7 +323,6 @@ func (p *postgresRepository) UpdateUser(params *banner.UpdateBannerParams) error
 		values = append(values, params.Content)
 	}
 	if params.IsActive != nil {
-		fmt.Println("Check4")
 		if cntParams > 0 {
 			nameParams = nameParams + ", is_active"
 		}
@@ -402,8 +334,6 @@ func (p *postgresRepository) UpdateUser(params *banner.UpdateBannerParams) error
 		cntParams++
 		values = append(values, customTime.GetMoscowTime())
 	}
-	fmt.Println("VALUES:", values)
-	fmt.Println("namePARAMS:", nameParams)
 
 	if cntParams > 1 {
 		query += "(" + nameParams + ") = \n\t\t\t("
@@ -423,7 +353,6 @@ func (p *postgresRepository) UpdateUser(params *banner.UpdateBannerParams) error
 
 	query = fmt.Sprintf(query, cconstant.BannerDB)
 
-	fmt.Println("QUERY:", query)
 	// -----------------------------------------------------------------------------------------------------------------------------
 
 	tx, err := p.db.Begin()

@@ -1,6 +1,7 @@
 package banner
 
 type Repository interface {
+	GetAllBanners() (*[]GetFilteredBannersResponse, error)
 	GetContentBanner(params *GetBannerParams) (*string, error)
 	GetContentBannerAdmin(params *GetBannerParams) (*string, error)
 	CreateBanner(params *CreateBannerParams) (int64, error)
