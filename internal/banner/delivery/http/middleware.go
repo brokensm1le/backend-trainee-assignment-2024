@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func (h *BannerHandler) userIdentity() fiber.Handler {
+func (h *BannerHandler) UserIdentity() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		headers := c.GetReqHeaders()
 
