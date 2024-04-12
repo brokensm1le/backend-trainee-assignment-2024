@@ -55,16 +55,15 @@ func (c *Cache) LoadCache() error {
 
 			bannerMap[PairIDs{bannerData.FeatureID, tag}] = bannerData
 
-			if _, ok := bannerMapFID[bannerData.FeatureID]; !ok {
-				bannerMapFID[bannerData.FeatureID] = make([]banner.GetFilteredBannersResponse, 0)
-			}
-			bannerMapFID[bannerData.FeatureID] = append(bannerMapFID[bannerData.FeatureID], bannerData)
-
 			if _, ok := bannerMapTID[tag]; !ok {
 				bannerMapTID[tag] = make([]banner.GetFilteredBannersResponse, 0)
 			}
 			bannerMapTID[tag] = append(bannerMapTID[tag], bannerData)
 		}
+		if _, ok := bannerMapFID[bannerData.FeatureID]; !ok {
+			bannerMapFID[bannerData.FeatureID] = make([]banner.GetFilteredBannersResponse, 0)
+		}
+		bannerMapFID[bannerData.FeatureID] = append(bannerMapFID[bannerData.FeatureID], bannerData)
 	}
 
 	var wg sync.WaitGroup
