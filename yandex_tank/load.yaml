@@ -1,0 +1,29 @@
+overload:
+  enabled: true
+  package: yandextank.plugins.DataUploader
+  token_file: "token.txt"
+phantom:
+  address: localhost:8080 # [Target's address]:[target's port]
+  headers:
+    - "[Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI5NjE1MzEsImlhdCI6MTcxMjk1NDMzMSwiaWQiOjEsInJvbGUiOjF9.aHnt5jL7HsUgKb9rnAOIbw1zNYiXIJzbtGMtOUsQRyA]"
+  uris:
+    - /user_banner?tag_id=4&feature_id=42
+    - /user_banner?tag_id=23&feature_id=71
+    - /user_banner?tag_id=7&feature_id=95
+    - /user_banner?tag_id=39&feature_id=66
+    - /user_banner?tag_id=7&feature_id=30
+    - /banner?feature_id=71
+    - /banner?feature_id=3
+    - /banner?feature_id=23
+    - /banner?feature_id=35
+    - /banner?tag_id=39
+    - /banner?tag_id=89
+    - /banner?tag_id=5
+    - /banner?tag_id=70
+  load_profile:
+    load_type: rps
+    schedule: line(900, 1000, 10m)
+console:
+  enabled: true
+telegraf:
+  enabled: false

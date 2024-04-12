@@ -7,8 +7,8 @@ buildrun:
 stop:
 	docker-compose down
 
-.PHONY: gen
-gen:
+.PHONY: genMock
+genMock:
 	mockgen -source=internal/auth/repository.go \
 	-destination=internal/auth/mocks/mock_repository.go
 	mockgen -source=internal/banner/repository.go \
@@ -17,3 +17,7 @@ gen:
 .PHONY: test
 test:
 	go test ./test/...
+
+.PHONY: genData
+genData:
+	go run ./generator/main.go

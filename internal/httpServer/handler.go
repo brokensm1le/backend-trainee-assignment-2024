@@ -48,6 +48,13 @@ func (s *Server) MapHandlers(app *fiber.App) error {
 	http2.MapRoutes(app, authR)
 	http.MapRoutes(app, bannerR)
 
+	if s.cfg.Server.WithGenerator {
+		err = storagePostgres.GenerateTable(s.cfg, bannerRepo)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+	}
+
 	go func() {
 		for {
 			err = cache.LoadCache()

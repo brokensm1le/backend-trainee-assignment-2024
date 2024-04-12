@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	"log"
 	"strings"
 )
 
@@ -161,6 +162,7 @@ func (p *postgresRepository) GetFilteredBannersFIDAdmin(params *banner.GetFilter
 	query = fmt.Sprintf(query, cconstant.BannerDB)
 
 	if err := p.db.Select(&data, query, values...); err != nil {
+		log.Println("ERROR(3 ADMIN):", err)
 		return &data, err
 	}
 

@@ -3,6 +3,7 @@ Server:
   Host: "0.0.0.0"
   Port: "8080"
   Timeout: 60s
+  WithGenerator: false
 
 Postgres:
   host: "postgres"
@@ -12,3 +13,10 @@ Postgres:
   DBName: "taskdb"
   sslMode: "disable"
   pgDriver: "pgx"
+
+Generator:
+  cntRow: 500
+  cntFeature: 100
+  cntTag: 100
+  maxTagInRow: 5
+  nameFile: "bannerData.csv"

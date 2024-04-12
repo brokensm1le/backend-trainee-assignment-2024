@@ -7,15 +7,17 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Postgres PostgresConfig
+	Server    ServerConfig
+	Postgres  PostgresConfig
+	Generator GeneratorConfig
 }
 
 type ServerConfig struct {
-	AppVersion string `json:"appVersion"`
-	Host       string `json:"host" validate:"required"`
-	Port       string `json:"port" validate:"required"`
-	Timeout    time.Duration
+	AppVersion    string `json:"appVersion"`
+	Host          string `json:"host" validate:"required"`
+	Port          string `json:"port" validate:"required"`
+	Timeout       time.Duration
+	WithGenerator bool `json:"withGenerator"`
 }
 
 type PostgresConfig struct {
@@ -26,6 +28,14 @@ type PostgresConfig struct {
 	DBName   string `json:"DBName"`
 	SSLMode  string `json:"sslMode"`
 	PgDriver string `json:"pgDriver"`
+}
+
+type GeneratorConfig struct {
+	CntRow      int64  `json:"cntRow"`
+	CntFeature  int64  `json:"cntFeature"`
+	CntTag      int64  `json:"cntTag"`
+	MaxTagInRow int64  `json:"maxTagInRow"`
+	NameFile    string `json:"nameFile"`
 }
 
 func LoadConfig() (*viper.Viper, error) {

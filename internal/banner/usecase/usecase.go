@@ -4,7 +4,6 @@ import (
 	"backend-trainee-assignment-2024/internal/banner"
 	"backend-trainee-assignment-2024/internal/banner/cache"
 	"backend-trainee-assignment-2024/internal/cconstant"
-	"log"
 )
 
 type BannerUsecase struct {
@@ -20,7 +19,6 @@ func (u *BannerUsecase) GetBanner(params *banner.GetBannerParams) (*string, erro
 	if !params.UseLastRevision {
 		getBanner, err := u.cache.GetBanner(params.FeatureID, params.TagID)
 		if err == nil {
-			log.Println("Cache:", getBanner.Content)
 			return &getBanner.Content, nil
 		}
 	}
@@ -36,7 +34,6 @@ func (u *BannerUsecase) GetFilteredBanners(params *banner.GetFilteredBannersPara
 		if !params.UseLastRevision {
 			getBanner, err := u.cache.GetBanner(params.FeatureID, params.TagID)
 			if err == nil {
-				log.Println("Cache:", getBanner)
 				return &[]banner.GetFilteredBannersResponse{getBanner}, nil
 			}
 		}
@@ -49,7 +46,6 @@ func (u *BannerUsecase) GetFilteredBanners(params *banner.GetFilteredBannersPara
 		if !params.UseLastRevision {
 			getBanner, err := u.cache.GetBannersByTID(params.TagID)
 			if err == nil {
-				log.Println("Cache:", getBanner)
 				return &getBanner, nil
 			}
 		}
@@ -61,9 +57,8 @@ func (u *BannerUsecase) GetFilteredBanners(params *banner.GetFilteredBannersPara
 	}
 
 	if !params.UseLastRevision {
-		getBanner, err := u.cache.GetBannersByFID(params.TagID)
+		getBanner, err := u.cache.GetBannersByFID(params.FeatureID)
 		if err == nil {
-			log.Println("Cache:", getBanner)
 			return &getBanner, nil
 		}
 	}

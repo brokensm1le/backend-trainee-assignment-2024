@@ -5,7 +5,6 @@ import (
 	"backend-trainee-assignment-2024/pkg/tokenManager"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"log"
 	"strconv"
 )
 
@@ -32,11 +31,11 @@ func (h *BannerHandler) GetBanner() fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "re-login"})
 		}
 		data, ok := tokenData.(*tokenManager.Data)
-		fmt.Println(data, ok)
+
 		if !ok {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "re-login"})
 		}
-		log.Println("tokenData:", tokenData)
+
 		params.Role = data.Role
 
 		if !validateParamsGetBanner(c) {
@@ -49,6 +48,9 @@ func (h *BannerHandler) GetBanner() fiber.Handler {
 
 		content, err := h.bannerUC.GetBanner(&params)
 		if err != nil {
+			if err.Error() == "sql: no rows in result set" {
+				return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": err.Error()})
+			}
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 		}
 		if _, err = c.Status(fiber.StatusOK).Response().BodyWriter().Write([]byte(*content)); err != nil {
@@ -73,11 +75,11 @@ func (h *BannerHandler) GetFilteredBanners() fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "re-login"})
 		}
 		data, ok := tokenData.(*tokenManager.Data)
-		fmt.Println(data, ok)
+
 		if !ok {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "re-login"})
 		}
-		log.Println("tokenData:", tokenData)
+
 		params.Role = data.Role
 
 		if err := c.QueryParser(&params); err != nil {
@@ -90,6 +92,9 @@ func (h *BannerHandler) GetFilteredBanners() fiber.Handler {
 
 		banners, err := h.bannerUC.GetFilteredBanners(&params)
 		if err != nil {
+			if err.Error() == "sql: no rows in result set" {
+				return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": err.Error()})
+			}
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 		}
 
@@ -108,15 +113,12 @@ func (h *BannerHandler) CreateBanner() fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "re-login"})
 		}
 		data, ok := tokenData.(*tokenManager.Data)
-		fmt.Println(data, ok)
 		if !ok {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "re-login"})
 		}
 		if data.Role != 1 {
 			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "you are not admin role"})
 		}
-
-		log.Println("tokenData:", tokenData)
 
 		if err := c.BodyParser(&params); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad body"})
@@ -148,8 +150,6 @@ func (h *BannerHandler) UpdateBanner() fiber.Handler {
 		if data.Role != 1 {
 			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "you are not admin role"})
 		}
-
-		log.Println("tokenData:", tokenData)
 
 		id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 		if err != nil {
@@ -183,8 +183,6 @@ func (h *BannerHandler) DeleteBanner() fiber.Handler {
 		if data.Role != 1 {
 			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "you are not admin role"})
 		}
-
-		log.Println("tokenData:", tokenData)
 
 		id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 		if err != nil {
