@@ -17,3 +17,9 @@ genMock:
 .PHONY: test
 test:
 	go test ./test/...
+
+
+.PHONY: linter
+linter:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.2
+	golangci-lint run -c ./linter/.golangci.yml

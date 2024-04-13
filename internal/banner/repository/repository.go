@@ -236,12 +236,18 @@ func (p *postgresRepository) CreateBanner(params *banner.CreateBannerParams) (in
 	}
 
 	if _, err := tx.Exec(fmt.Sprintf("LOCK TABLE %[1]s IN ROW EXCLUSIVE MODE;", cconstant.BannerDB)); err != nil {
-		tx.Rollback()
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
 		return 0, err
 	}
 
 	if err := tx.QueryRow(query, values...).Scan(&id); err != nil {
-		tx.Rollback()
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
 		return 0, err
 	}
 
@@ -253,18 +259,27 @@ func (p *postgresRepository) CreateBanner(params *banner.CreateBannerParams) (in
 
 	var cntRow int
 	if err := tx.QueryRow(queryGet, valuesGet...).Scan(&cntRow); err != nil {
-		tx.Rollback()
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
 		return 0, err
 	}
 
 	if cntRow != 1 {
-		tx.Rollback()
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
 		return 0, fmt.Errorf("you already have that relationship")
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		tx.Rollback()
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
 		return 0, err
 	}
 
@@ -302,6 +317,9 @@ func (p *postgresRepository) UpdateUser(params *banner.UpdateBannerParams) error
 	)
 
 	chngBanner, err := p.getBannerById(params.BannerID)
+	if err != nil {
+		return err
+	}
 
 	if params.TagIDs != nil {
 		nameParams = nameParams + "tag_ids"
@@ -363,12 +381,18 @@ func (p *postgresRepository) UpdateUser(params *banner.UpdateBannerParams) error
 	}
 
 	if _, err := tx.Exec(fmt.Sprintf("LOCK TABLE %[1]s IN ROW EXCLUSIVE MODE;", cconstant.BannerDB)); err != nil {
-		tx.Rollback()
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
 		return err
 	}
 
 	if _, err := tx.Exec(query, values...); err != nil {
-		tx.Rollback()
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
 		return err
 	}
 
@@ -380,11 +404,17 @@ func (p *postgresRepository) UpdateUser(params *banner.UpdateBannerParams) error
 
 	var cntRow int
 	if err := tx.QueryRow(queryGet, valuesGet...).Scan(&cntRow); err != nil {
-		tx.Rollback()
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
 		return err
 	}
 	if cntRow != 1 {
-		tx.Rollback()
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
 		return fmt.Errorf("you already have that relationship")
 	}
 

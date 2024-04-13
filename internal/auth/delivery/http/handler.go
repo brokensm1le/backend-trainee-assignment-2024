@@ -2,7 +2,6 @@ package http
 
 import (
 	"backend-trainee-assignment-2024/internal/auth"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"log"
 	"regexp"
@@ -30,7 +29,7 @@ func (h *AuthHandler) SignUp() fiber.Handler {
 
 		pattern, _ := regexp.Compile("[A-Za-z0-9@.]+")
 		if !pattern.MatchString(params.Email) {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": fmt.Sprintf("email must contain the characters a-z, A-z, 0-9, @ and .")})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "email must contain the characters a-z, A-z, 0-9, @ and ."})
 		}
 
 		err := h.authUC.SignUp(&params)
@@ -54,7 +53,7 @@ func (h *AuthHandler) SignIn() fiber.Handler {
 
 		pattern, _ := regexp.Compile("[A-Za-z0-9@.]+")
 		if !pattern.MatchString(params.Email) {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": fmt.Sprintf("email must contain the characters a-z, A-z, 0-9, @ and .")})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "email must contain the characters a-z, A-z, 0-9, @ and ."})
 		}
 
 		tokens, err := h.authUC.SignIn(&params)

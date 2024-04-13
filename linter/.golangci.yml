@@ -1,0 +1,10 @@
+run:
+  timeout: 2m
+
+linters:
+  disable-all: true
+  enable:
+    - gofmt
+    - unused
+    - govet
+    - errcheck

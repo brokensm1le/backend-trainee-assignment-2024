@@ -58,7 +58,8 @@ func Test(t *testing.T) {
 
 		// TEST get tokens
 		m, b := map[string]string{"email": "Sasha", "password": "1234"}, new(bytes.Buffer)
-		json.NewEncoder(b).Encode(m)
+		err := json.NewEncoder(b).Encode(m)
+		require.NoError(t, err)
 		req, _ := http.NewRequest("POST", "/auth/signIn", b)
 		req.Header.Set("Content-Type", "application/json")
 		resp, err := app.Test(req, -1)
@@ -67,7 +68,8 @@ func Test(t *testing.T) {
 		bodyBytes, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)
 		tokens := auth.TokensResponse{}
-		json.Unmarshal(bodyBytes, &tokens)
+		err = json.Unmarshal(bodyBytes, &tokens)
+		require.NoError(t, err)
 
 		// TEST get banner
 
@@ -82,6 +84,7 @@ func Test(t *testing.T) {
 		resp, err = app.Test(req, -1)
 		require.NoError(t, err)
 		bodyBytes, err = io.ReadAll(resp.Body)
+		require.NoError(t, err)
 		require.Equal(t, content, string(bodyBytes))
 	})
 
@@ -116,7 +119,8 @@ func Test(t *testing.T) {
 
 		// TEST get tokens
 		m, b := map[string]string{"email": "Sasha", "password": "1234"}, new(bytes.Buffer)
-		json.NewEncoder(b).Encode(m)
+		err := json.NewEncoder(b).Encode(m)
+		require.NoError(t, err)
 		req, _ := http.NewRequest("POST", "/auth/signIn", b)
 		req.Header.Set("Content-Type", "application/json")
 		resp, err := app.Test(req, -1)
@@ -125,16 +129,19 @@ func Test(t *testing.T) {
 		bodyBytes, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)
 		tokens := auth.TokensResponse{}
-		json.Unmarshal(bodyBytes, &tokens)
+		err = json.Unmarshal(bodyBytes, &tokens)
+		require.NoError(t, err)
 
 		// TEST create banner
 		r := banner.CreateBannerParams{TagIDs: []int64{2, 3}, FeatureID: 2, Content: "content!!!", IsActive: true, UseLastRevision: true}
 		b = new(bytes.Buffer)
-		json.NewEncoder(b).Encode(r)
+		err = json.NewEncoder(b).Encode(r)
+		require.NoError(t, err)
 		req, _ = http.NewRequest("POST", "/banner", b)
 		req.Header.Set("Authorization", "Bearer "+tokens.AccessToken)
 		req.Header.Set("Content-Type", "application/json")
 		resp, err = app.Test(req, -1)
+		require.NoError(t, err)
 		require.Equal(t, "403 Forbidden", resp.Status)
 
 		// TEST delete banner
@@ -163,6 +170,7 @@ func Test(t *testing.T) {
 		resp, err = app.Test(req, -1)
 		require.NoError(t, err)
 		bodyBytes, err = io.ReadAll(resp.Body)
+		require.NoError(t, err)
 		require.Equal(t, "{\"error\":\"sql: no rows in result set\"}", string(bodyBytes))
 	})
 
@@ -195,7 +203,8 @@ func Test(t *testing.T) {
 
 		// TEST get tokens
 		m, b := map[string]string{"email": "Sasha", "password": "1234"}, new(bytes.Buffer)
-		json.NewEncoder(b).Encode(m)
+		err := json.NewEncoder(b).Encode(m)
+		require.NoError(t, err)
 		req, _ := http.NewRequest("POST", "/auth/signIn", b)
 		req.Header.Set("Content-Type", "application/json")
 		resp, err := app.Test(req, -1)
@@ -204,20 +213,24 @@ func Test(t *testing.T) {
 		bodyBytes, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)
 		tokens := auth.TokensResponse{}
-		json.Unmarshal(bodyBytes, &tokens)
+		err = json.Unmarshal(bodyBytes, &tokens)
+		require.NoError(t, err)
 
 		// TEST create banner
 		r := banner.CreateBannerParams{TagIDs: []int64{2, 3}, FeatureID: 2, Content: "content!!!", IsActive: true, UseLastRevision: true}
 		b = new(bytes.Buffer)
-		json.NewEncoder(b).Encode(r)
+		err = json.NewEncoder(b).Encode(r)
+		require.NoError(t, err)
 		req, _ = http.NewRequest("POST", "/banner", b)
 		req.Header.Set("Authorization", "Bearer "+tokens.AccessToken)
 		req.Header.Set("Content-Type", "application/json")
 		resp, err = app.Test(req, -1)
 		require.NoError(t, err)
 		bodyBytes, err = io.ReadAll(resp.Body)
+		require.NoError(t, err)
 		bannerId := CreateBannerID{}
-		json.Unmarshal(bodyBytes, &bannerId)
+		err = json.Unmarshal(bodyBytes, &bannerId)
+		require.NoError(t, err)
 		require.NotEqual(t, 0, bannerId.BannerID)
 		//fmt.Println(bannerId.BannerID)
 
@@ -234,6 +247,7 @@ func Test(t *testing.T) {
 		resp, err = app.Test(req, -1)
 		require.NoError(t, err)
 		bodyBytes, err = io.ReadAll(resp.Body)
+		require.NoError(t, err)
 		require.Equal(t, r.Content, string(bodyBytes))
 
 		// TEST get all info banner
@@ -249,8 +263,10 @@ func Test(t *testing.T) {
 		resp, err = app.Test(req, -1)
 		require.NoError(t, err)
 		bodyBytes, err = io.ReadAll(resp.Body)
+		require.NoError(t, err)
 		var res []banner.GetFilteredBannersResponse
-		json.Unmarshal(bodyBytes, &res)
+		err = json.Unmarshal(bodyBytes, &res)
+		require.NoError(t, err)
 		require.Equal(t, r.Content, res[0].Content)
 		require.Equal(t, r.FeatureID, res[0].FeatureID)
 		require.Equal(t, r.IsActive, res[0].IsActive)
@@ -285,7 +301,8 @@ func Test(t *testing.T) {
 
 		// TEST get tokens
 		m, b := map[string]string{"email": "Sasha", "password": "1234"}, new(bytes.Buffer)
-		json.NewEncoder(b).Encode(m)
+		err := json.NewEncoder(b).Encode(m)
+		require.NoError(t, err)
 		req, _ := http.NewRequest("POST", "/auth/signIn", b)
 		req.Header.Set("Content-Type", "application/json")
 		resp, err := app.Test(req, -1)
@@ -294,7 +311,8 @@ func Test(t *testing.T) {
 		bodyBytes, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)
 		tokens := auth.TokensResponse{}
-		json.Unmarshal(bodyBytes, &tokens)
+		err = json.Unmarshal(bodyBytes, &tokens)
+		require.NoError(t, err)
 
 		sliceBanners := []struct {
 			ban         banner.CreateBannerParams
@@ -344,15 +362,18 @@ func Test(t *testing.T) {
 
 		for _, ban := range sliceBanners {
 			b = new(bytes.Buffer)
-			json.NewEncoder(b).Encode(ban.ban)
+			err := json.NewEncoder(b).Encode(ban.ban)
+			require.NoError(t, err)
 			req, _ = http.NewRequest("POST", "/banner", b)
 			req.Header.Set("Authorization", "Bearer "+tokens.AccessToken)
 			req.Header.Set("Content-Type", "application/json")
 			resp, err = app.Test(req, -1)
 			require.NoError(t, err)
 			bodyBytes, err = io.ReadAll(resp.Body)
+			require.NoError(t, err)
 			bannerId := CreateBannerID{}
-			json.Unmarshal(bodyBytes, &bannerId)
+			err = json.Unmarshal(bodyBytes, &bannerId)
+			require.NoError(t, err)
 			require.NotEqual(t, 0, bannerId.BannerID)
 			fmt.Println("ID:", bannerId.BannerID)
 		}
@@ -369,8 +390,10 @@ func Test(t *testing.T) {
 		resp, err = app.Test(req, -1)
 		require.NoError(t, err)
 		bodyBytes, err = io.ReadAll(resp.Body)
+		require.NoError(t, err)
 		var res []banner.GetFilteredBannersResponse
-		json.Unmarshal(bodyBytes, &res)
+		err = json.Unmarshal(bodyBytes, &res)
+		require.NoError(t, err)
 		require.Equal(t, 2, len(res))
 
 		// TEST only feature_id
@@ -385,8 +408,10 @@ func Test(t *testing.T) {
 		resp, err = app.Test(req, -1)
 		require.NoError(t, err)
 		bodyBytes, err = io.ReadAll(resp.Body)
+		require.NoError(t, err)
 		res = []banner.GetFilteredBannersResponse{}
-		json.Unmarshal(bodyBytes, &res)
+		err = json.Unmarshal(bodyBytes, &res)
+		require.NoError(t, err)
 		require.Equal(t, 2, len(res))
 	})
 
@@ -420,7 +445,8 @@ func Test(t *testing.T) {
 
 		// TEST get tokens
 		m, b := map[string]string{"email": "Sasha", "password": "1234"}, new(bytes.Buffer)
-		json.NewEncoder(b).Encode(m)
+		err := json.NewEncoder(b).Encode(m)
+		require.NoError(t, err)
 		req, _ := http.NewRequest("POST", "/auth/signIn", b)
 		req.Header.Set("Content-Type", "application/json")
 		resp, err := app.Test(req, -1)
@@ -429,7 +455,8 @@ func Test(t *testing.T) {
 		bodyBytes, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)
 		tokens := auth.TokensResponse{}
-		json.Unmarshal(bodyBytes, &tokens)
+		err = json.Unmarshal(bodyBytes, &tokens)
+		require.NoError(t, err)
 
 		sliceBanners := []struct {
 			ban         banner.CreateBannerParams
@@ -479,15 +506,18 @@ func Test(t *testing.T) {
 
 		for _, ban := range sliceBanners {
 			b = new(bytes.Buffer)
-			json.NewEncoder(b).Encode(ban.ban)
+			err := json.NewEncoder(b).Encode(ban.ban)
+			require.NoError(t, err)
 			req, _ = http.NewRequest("POST", "/banner", b)
 			req.Header.Set("Authorization", "Bearer "+tokens.AccessToken)
 			req.Header.Set("Content-Type", "application/json")
 			resp, err = app.Test(req, -1)
 			require.NoError(t, err)
 			bodyBytes, err = io.ReadAll(resp.Body)
+			require.NoError(t, err)
 			bannerId := CreateBannerID{}
-			json.Unmarshal(bodyBytes, &bannerId)
+			err = json.Unmarshal(bodyBytes, &bannerId)
+			require.NoError(t, err)
 			require.NotEqual(t, 0, bannerId.BannerID)
 			fmt.Println("ID:", bannerId.BannerID)
 		}
@@ -504,14 +534,16 @@ func Test(t *testing.T) {
 		resp, err = app.Test(req, -1)
 		require.NoError(t, err)
 		bodyBytes, err = io.ReadAll(resp.Body)
+		require.NoError(t, err)
 		var res []banner.GetFilteredBannersResponse
-		json.Unmarshal(bodyBytes, &res)
+		err = json.Unmarshal(bodyBytes, &res)
+		require.NoError(t, err)
 		require.Equal(t, 2, len(res))
 
 		// TEST delete
 		req, _ = http.NewRequest("DELETE", fmt.Sprintf("/banner/%d", res[0].BannerID), nil)
 		req.Header.Set("Authorization", "Bearer "+tokens.AccessToken)
-		resp, err = app.Test(req, -1)
+		_, err = app.Test(req, -1)
 		require.NoError(t, err)
 
 		// TEST delete tag_id
@@ -526,8 +558,10 @@ func Test(t *testing.T) {
 		resp, err = app.Test(req, -1)
 		require.NoError(t, err)
 		bodyBytes, err = io.ReadAll(resp.Body)
+		require.NoError(t, err)
 		res = []banner.GetFilteredBannersResponse{}
-		json.Unmarshal(bodyBytes, &res)
+		err = json.Unmarshal(bodyBytes, &res)
+		require.NoError(t, err)
 		require.Equal(t, 1, len(res))
 	})
 

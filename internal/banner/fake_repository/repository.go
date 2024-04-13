@@ -37,7 +37,7 @@ func (p *fakeRepository) GetAllBanners() (*[]banner.GetFilteredBannersResponse, 
 
 func (p *fakeRepository) GetContentBanner(params *banner.GetBannerParams) (*string, error) {
 	ban, ok := p.Banner[PairIDs{params.FeatureID, params.TagID}]
-	if !ok || ban.IsActive == false {
+	if !ok || !ban.IsActive {
 		fmt.Println("OK:", ok)
 		fmt.Println("BANNER:", ban)
 		fmt.Println("MAP", p.Banner)
@@ -58,7 +58,7 @@ func (p *fakeRepository) GetContentBannerAdmin(params *banner.GetBannerParams) (
 
 func (p *fakeRepository) GetBanner(params *banner.GetFilteredBannersParams) (*[]banner.GetFilteredBannersResponse, error) {
 	ban, ok := p.Banner[PairIDs{params.FeatureID, params.TagID}]
-	if !ok || ban.IsActive == false {
+	if !ok || !ban.IsActive {
 		return &[]banner.GetFilteredBannersResponse{}, fmt.Errorf("sql: no rows in result set")
 	}
 	return &[]banner.GetFilteredBannersResponse{ban}, nil
@@ -79,7 +79,7 @@ func (p *fakeRepository) GetFilteredBannersTID(params *banner.GetFilteredBanners
 		return &ans, fmt.Errorf("sql: no rows in result set")
 	}
 	for _, response := range banners {
-		if response.IsActive == false {
+		if !response.IsActive {
 			continue
 		}
 		ans = append(ans, response)
@@ -106,7 +106,7 @@ func (p *fakeRepository) GetFilteredBannersFID(params *banner.GetFilteredBanners
 		return &ans, fmt.Errorf("sql: no rows in result set")
 	}
 	for _, response := range banners {
-		if response.IsActive == false {
+		if !response.IsActive {
 			continue
 		}
 		ans = append(ans, response)
