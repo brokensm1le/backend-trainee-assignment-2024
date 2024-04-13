@@ -17,7 +17,3 @@ genMock:
 .PHONY: test
 test:
 	go test ./test/...
-
-.PHONY: genData
-genData:
-	go run ./generator/main.go
