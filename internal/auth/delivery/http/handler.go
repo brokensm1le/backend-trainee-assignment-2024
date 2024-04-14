@@ -36,7 +36,7 @@ func (h *AuthHandler) SignUp() fiber.Handler {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 		}
-		c.Status(fiber.StatusOK)
+		c.Status(fiber.StatusCreated)
 		return nil
 	}
 }

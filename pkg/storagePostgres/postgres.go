@@ -42,6 +42,13 @@ func CreateTable(db *sqlx.DB) error {
 			refresh_token    	text		 not null unique,
 			refresh_token_ttl   timestamp	 not null
 		);
+		CREATE TABLE IF NOT EXISTS "vbanner"
+		(
+			version_id		bigserial   not null unique,
+			banner_id       bigint    	not null,
+			data			bytea,
+			created_at		timestamp 
+		);
 		`
 	)
 	if _, err := db.Exec(query); err != nil {

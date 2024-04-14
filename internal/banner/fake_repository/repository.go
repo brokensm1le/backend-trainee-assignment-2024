@@ -21,6 +21,26 @@ type fakeRepository struct {
 	BannerTID map[int64][]banner.GetFilteredBannersResponse
 }
 
+func (p *fakeRepository) UpdateBanner(params *banner.UpdateBannerParams) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *fakeRepository) GetVersionByID(id int64) (*[]byte, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *fakeRepository) GetVersionByBannerID(id int64) (*[]banner.GetVersionResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *fakeRepository) DeleteVersion(versionId int64) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewFakeRepository() banner.Repository {
 	return &fakeRepository{
 		Id:        0,

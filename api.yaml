@@ -3,8 +3,148 @@ info:
   title: Сервис баннеров
   version: 1.0.0
 paths:
+  /auth/signUp:
+    post:
+      tags:
+        - Auth
+      summary: Зарегистрироваться в системе
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Имя пользователя
+                email:
+                  type: string
+                  required: true
+                  description: email для входа
+                password:
+                  type: string
+                  required: true
+                  description: пароль для входа
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Некорректные данные
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /auth/signIn:
+    post:
+      tags:
+        - Auth
+      summary: Вход в систему
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  required: true
+                  description: email для входа
+                password:
+                  type: string
+                  required: true
+                  description: пароль для входа
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+        '400':
+          description: Некорректные данные
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /auth/refreshTokens:
+    post:
+      tags:
+        - Auth
+      summary: Обновить токены
+      parameters:
+        - in: header
+          name: Refresh-Token
+          description: Старый Refresh token
+          schema:
+            type: string
+            example: "Refresh-Token"
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+        '400':
+          description: Некорректные данные
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: Пользователь не авторизован
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
   /user_banner:
     get:
+      tags:
+        - Banner
       summary: Получение баннера для пользователя
       parameters:
         - in: query
@@ -68,6 +208,8 @@ paths:
                     type: string
   /banner:
     get:
+      tags:
+        - Banner
       summary: Получение всех баннеров c фильтрацией по фиче и/или тегу 
       parameters:
         - in: header
@@ -151,6 +293,8 @@ paths:
                   error:
                     type: string
     post:
+      tags:
+        - Banner
       summary: Создание нового баннера
       parameters:
         - in: header
@@ -217,6 +361,8 @@ paths:
                     type: string
   /banner/{id}:
     patch:
+      tags:
+        - Banner
       summary: Обновление содержимого баннера
       parameters:
         - in: path
@@ -286,6 +432,8 @@ paths:
                   error:
                     type: string
     delete:
+      tags:
+        - Banner
       summary: Удаление баннера по идентификатору
       parameters:
         - in: path
@@ -318,6 +466,172 @@ paths:
           description: Пользователь не имеет доступа
         '404':
           description: Баннер для тэга не найден
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /version/{id}:
+    get:
+      tags:
+        - Version
+      summary: Получение информации о версиях баннера
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            description: Идентификатор баннера
+        - in: header
+          name: token
+          description: Токен админа
+          schema:
+            type: string
+            example: "admin_token"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                version_id:
+                  nullable: true
+                  type: integer
+                  description: Идентификатор версии
+                tag_ids:
+                  nullable: true
+                  type: array
+                  description: Идентификаторы тэгов
+                  items:
+                    type: integer
+                feature_id:
+                  nullable: true
+                  type: integer
+                  description: Идентификатор фичи
+                content:
+                  nullable: true
+                  type: object
+                  description: Содержимое баннера
+                  additionalProperties: true
+                  example: '{"title": "some_title", "text": "some_text", "url": "some_url"}'
+                is_active:
+                  nullable: true
+                  type: boolean
+                  description: Флаг активности баннера
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Некорректные данные
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: Пользователь не авторизован
+        '403':
+          description: Пользователь не имеет доступа
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /version/{vid}:
+    delete:
+      tags:
+        - Version
+      summary:  Удалить версию баннера
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          schema:
+            type: integer
+            description: Идентификатор версии
+        - in: header
+          name: token
+          description: Токен админа
+          schema:
+            type: string
+            example: "admin_token"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Некорректные данные
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: Пользователь не авторизован
+        '403':
+          description: Пользователь не имеет доступа
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /version:
+    patch:
+      tags:
+        - Version
+      summary: Выбор определенной версии
+      parameters:
+        - in: query
+          name: banner_id
+          required: true
+          schema:
+            type: integer
+            description: Идентификатор баннера
+        - in: query
+          name: version_id
+          required: true
+          schema:
+            type: integer
+            description: Идентификатор версии
+        - in: header
+          name: token
+          description: Токен админа
+          schema:
+            type: string
+            example: "admin_token"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Некорректные данные
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: Пользователь не авторизован
+        '403':
+          description: Пользователь не имеет доступа
         '500':
           description: Внутренняя ошибка сервера
           content:

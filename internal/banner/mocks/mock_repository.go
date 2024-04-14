@@ -63,6 +63,20 @@ func (mr *MockRepositoryMockRecorder) DeleteBanner(id interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBanner", reflect.TypeOf((*MockRepository)(nil).DeleteBanner), id)
 }
 
+// DeleteVersion mocks base method.
+func (m *MockRepository) DeleteVersion(versionId int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteVersion", versionId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteVersion indicates an expected call of DeleteVersion.
+func (mr *MockRepositoryMockRecorder) DeleteVersion(versionId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteVersion", reflect.TypeOf((*MockRepository)(nil).DeleteVersion), versionId)
+}
+
 // GetAllBanners mocks base method.
 func (m *MockRepository) GetAllBanners() (*[]banner.GetFilteredBannersResponse, error) {
 	m.ctrl.T.Helper()
@@ -198,16 +212,46 @@ func (mr *MockRepositoryMockRecorder) GetFilteredBannersTIDAdmin(params interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilteredBannersTIDAdmin", reflect.TypeOf((*MockRepository)(nil).GetFilteredBannersTIDAdmin), params)
 }
 
-// UpdateUser mocks base method.
-func (m *MockRepository) UpdateUser(params *banner.UpdateBannerParams) error {
+// GetVersionByBannerID mocks base method.
+func (m *MockRepository) GetVersionByBannerID(id int64) (*[]banner.GetVersionResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateUser", params)
+	ret := m.ctrl.Call(m, "GetVersionByBannerID", id)
+	ret0, _ := ret[0].(*[]banner.GetVersionResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetVersionByBannerID indicates an expected call of GetVersionByBannerID.
+func (mr *MockRepositoryMockRecorder) GetVersionByBannerID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionByBannerID", reflect.TypeOf((*MockRepository)(nil).GetVersionByBannerID), id)
+}
+
+// GetVersionByID mocks base method.
+func (m *MockRepository) GetVersionByID(id int64) (*[]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetVersionByID", id)
+	ret0, _ := ret[0].(*[]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetVersionByID indicates an expected call of GetVersionByID.
+func (mr *MockRepositoryMockRecorder) GetVersionByID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionByID", reflect.TypeOf((*MockRepository)(nil).GetVersionByID), id)
+}
+
+// UpdateBanner mocks base method.
+func (m *MockRepository) UpdateBanner(params *banner.UpdateBannerParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateBanner", params)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateUser indicates an expected call of UpdateUser.
-func (mr *MockRepositoryMockRecorder) UpdateUser(params interface{}) *gomock.Call {
+// UpdateBanner indicates an expected call of UpdateBanner.
+func (mr *MockRepositoryMockRecorder) UpdateBanner(params interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockRepository)(nil).UpdateUser), params)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBanner", reflect.TypeOf((*MockRepository)(nil).UpdateBanner), params)
 }

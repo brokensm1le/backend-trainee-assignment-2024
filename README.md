@@ -2,6 +2,10 @@
 
 ## Решение
 
+### API
+
+Дополнил [API](api.yaml), новым функционалом.
+
 ### Запуск
 
 В репозитории есть *Makefile*:
@@ -14,6 +18,16 @@
 ```
 
 Подробнее про тесты [тут](#тесты).
+
+###### Подключение к PostgrsQL(psql):
+```
+psql postgresql://root:root@localhost:5432/taskdb
+```
+
+###### Запуск нагрузочного теста(YandexTank):
+```
+docker run     -v $(pwd):/var/loadtest     -v $SSH_AUTH_SOCK:/ssh-agent -e SSH_AUTH_SOCK=/ssh-agent     --net host     -it yandex/yandex-tank
+```
 
 _________________________________________________
 ### Проблемы
@@ -93,6 +107,15 @@ UDP: Да, в данном тесте нет запросов update, delete, cr
 Результат можно посмотреть по ссылке на [overload](https://overload.yandex.net/693232#tab=test_data&tags=&plot_groups=main&machines=&metrics=&slider_start=1712955941&slider_end=1712956541).
 
 #### Версионирование баннеров
+
+Решил сделать что-то на подобии журнала обновлений: как только делается какое-то изменение данных мы записываем это изменение в журнал обновлений.
+Дальше можем посмотреть по banner_id его версии и выбрать его. Создал новую базу данных vbanner{version_id, banner_id, data}(храню data в байтах нужный JSON).
+Добавил 3 новых ручки:
+```
+GET     /version/:id    - дает информацию о версия определенного banner_id
+DELETE  /version/:vid   - удаляет определенную версию version_id
+PATCH   /version        - берет определеную версию и выкатывает её в акутальную (в query передается banner_id и version_id)
+```
 
 #### Дополнительные тесты
 

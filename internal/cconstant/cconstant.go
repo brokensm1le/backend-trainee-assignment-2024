@@ -3,8 +3,9 @@ package cconstant
 import "time"
 
 const (
-	AuthDB   string = "taskdb.public.auth"
-	BannerDB string = "taskdb.public.banner"
+	AuthDB    string = "taskdb.public.auth"
+	BannerDB  string = "taskdb.public.banner"
+	VersionDB string = "taskdb.public.vbanner"
 )
 
 const (

@@ -6,4 +6,8 @@ type Usecase interface {
 	GetFilteredBanners(params *GetFilteredBannersParams) (*[]GetFilteredBannersResponse, error)
 	DeleteBanner(id int64) error
 	UpdateUser(params *UpdateBannerParams) error
+
+	GetVersionByBannerID(id int64) (*[]GetVersionDecodeResponse, error)
+	DeleteVersion(versionId int64) error
+	SelectVersion(versionId int64, bannerId int64) error
 }

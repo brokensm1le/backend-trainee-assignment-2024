@@ -9,4 +9,8 @@ func MapRoutes(router fiber.Router, h *BannerHandler) {
 	routerWithToken.Post("/banner", h.CreateBanner())
 	routerWithToken.Patch("/banner/:id", h.UpdateBanner())
 	routerWithToken.Delete("/banner/:id", h.DeleteBanner())
+
+	routerWithToken.Get("/version/:id", h.GetVersionBanners())
+	routerWithToken.Patch("/version", h.SelectVersionBanners())
+	routerWithToken.Delete("/version/:vid", h.DeleteVersionBanners())
 }

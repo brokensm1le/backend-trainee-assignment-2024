@@ -4,11 +4,13 @@ import (
 	"backend-trainee-assignment-2024/internal/banner"
 	"backend-trainee-assignment-2024/internal/cconstant"
 	"backend-trainee-assignment-2024/pkg/customTime"
+	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"log"
 	"strings"
+	"time"
 )
 
 type postgresRepository struct {
@@ -221,9 +223,10 @@ func (p *postgresRepository) CreateBanner(params *banner.CreateBannerParams) (in
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING banner_id;`
 
-		values = []any{params.FeatureID, params.Content, params.IsActive,
+		timeNow time.Time = customTime.GetMoscowTime()
+		values            = []any{params.FeatureID, params.Content, params.IsActive,
 			"{" + strings.Trim(strings.Replace(fmt.Sprint(params.TagIDs), " ", ", ", -1), "[]") + "}",
-			customTime.GetMoscowTime(), customTime.GetMoscowTime(),
+			timeNow, timeNow,
 		}
 		id int64
 	)
@@ -274,6 +277,38 @@ func (p *postgresRepository) CreateBanner(params *banner.CreateBannerParams) (in
 		return 0, fmt.Errorf("you already have that relationship")
 	}
 
+	query = `INSERT INTO %[1]s (banner_id, data)
+		VALUES ($1, $2);`
+
+	query = fmt.Sprintf(query, cconstant.VersionDB)
+
+	bytesData, err := json.Marshal(banner.GetFilteredBannersResponse{
+		BannerID:  id,
+		TagIDs:    "{" + strings.Trim(strings.Replace(fmt.Sprint(params.TagIDs), " ", ", ", -1), "[]") + "}",
+		FeatureID: params.FeatureID,
+		Content:   params.Content,
+		IsActive:  params.IsActive,
+		CreatedAt: timeNow,
+		UpdatedAt: timeNow,
+	})
+	if err != nil {
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
+		return 0, err
+	}
+
+	values = []any{id, bytesData}
+
+	if _, err := tx.Exec(query, values...); err != nil {
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
+		return 0, err
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		rollbackErr := tx.Rollback()
@@ -290,7 +325,7 @@ func (p *postgresRepository) DeleteBanner(id int64) error {
 	var (
 		query = `
 		DELETE FROM %[1]s 
-		WHERE banner_id = $1
+		WHERE version_id = $1
 		`
 
 		values = []any{id}
@@ -305,7 +340,7 @@ func (p *postgresRepository) DeleteBanner(id int64) error {
 	return nil
 }
 
-func (p *postgresRepository) UpdateUser(params *banner.UpdateBannerParams) error {
+func (p *postgresRepository) UpdateBanner(params *banner.UpdateBannerParams) error {
 	var (
 		query string = `
 		UPDATE %[1]s SET
@@ -418,6 +453,46 @@ func (p *postgresRepository) UpdateUser(params *banner.UpdateBannerParams) error
 		return fmt.Errorf("you already have that relationship")
 	}
 
+	data := banner.GetFilteredBannersResponse{}
+	query = `
+		SELECT *
+		FROM %[1]s 
+		WHERE banner_id = $1;`
+
+	query = fmt.Sprintf(query, cconstant.BannerDB)
+
+	if err := tx.QueryRow(query, params.BannerID).Scan(&data.BannerID, &data.FeatureID, &data.TagIDs, &data.Content, &data.IsActive, &data.CreatedAt, &data.UpdatedAt); err != nil {
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
+		return err
+	}
+
+	query = `INSERT INTO %[1]s (banner_id, data)
+		VALUES ($1, $2);`
+
+	query = fmt.Sprintf(query, cconstant.VersionDB)
+
+	bytesData, err := json.Marshal(data)
+	if err != nil {
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
+		return err
+	}
+
+	values = []any{params.BannerID, bytesData}
+
+	if _, err := tx.Exec(query, values...); err != nil {
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			log.Println("ERROR in rollback:", rollbackErr)
+		}
+		return err
+	}
+
 	return tx.Commit()
 }
 
@@ -440,4 +515,67 @@ func (p *postgresRepository) getBannerById(id int64) (*banner.GetFilteredBanners
 	}
 
 	return &data, nil
+}
+
+// -------------------------------------------------------------------------------
+
+func (p *postgresRepository) GetVersionByBannerID(id int64) (*[]banner.GetVersionResponse, error) {
+	var (
+		data  []banner.GetVersionResponse
+		query = `
+		SELECT version_id, data
+		FROM %[1]s 
+		WHERE banner_id = $1;
+		`
+
+		values = []any{id}
+	)
+
+	query = fmt.Sprintf(query, cconstant.VersionDB)
+
+	if err := p.db.Select(&data, query, values...); err != nil {
+		return &data, err
+	}
+
+	return &data, nil
+}
+
+func (p *postgresRepository) GetVersionByID(id int64) (*[]byte, error) {
+	var (
+		data  []byte
+		query = `
+		SELECT data
+		FROM %[1]s 
+		WHERE version_id = $1;
+		`
+
+		values = []any{id}
+	)
+
+	query = fmt.Sprintf(query, cconstant.VersionDB)
+
+	if err := p.db.Get(&data, query, values...); err != nil {
+		return &data, err
+	}
+
+	return &data, nil
+}
+
+func (p *postgresRepository) DeleteVersion(versionId int64) error {
+	var (
+		query = `
+		DELETE FROM %[1]s 
+		WHERE version_id = $1
+		`
+
+		values = []any{versionId}
+	)
+
+	query = fmt.Sprintf(query, cconstant.VersionDB)
+
+	if _, err := p.db.Exec(query, values...); err != nil {
+		return err
+	}
+
+	return nil
 }
